@@ -18,6 +18,15 @@ public class PropostaController {
     private PropostaService propostaService;
 
     //recebe parãmetros pelo PropostaRequestDto, e devolve pelo PropostaResponseDto
+
+    /*
+        O que fica dentro do maior que e menor que <>, é o que usaremos para retornar(PropostaResponseDto).
+
+        Mesma situação se da para o que fica antes do "=" na linha abaixo, irá ser salvo o que estará no body
+        da requisição, atribuída a requestDto (lógica de negócio do save no banco de dados se encontra no service)
+        como foi passado abaixo.
+
+     */
     @PostMapping
     public ResponseEntity<PropostaResponseDto> criar(@RequestBody PropostaRequestDto requestDto){
     PropostaResponseDto response =  propostaService.criar(requestDto);
