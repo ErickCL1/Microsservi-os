@@ -8,11 +8,15 @@ import com.cordeiro.propostaapp.repository.PropostaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Service
 public class PropostaService {
 
-    private PropostaRepository propostaRepository;
+    private  PropostaRepository propostaRepository;
+
+
 
     // public PropostaResponseDto: o que retorna + NOME DO MÉTODO(criar) + O QUE VAI SER PASSADO NO BODY
     // RETORNA O RESPONSE NO COMEÇO E RECEBE O REQUEST NO PARÂMETRO.
@@ -24,6 +28,10 @@ public class PropostaService {
         propostaRepository.save(proposta);
         // CONVERSÃO DA PROPOSTA PARA DTO, PARA RETORNAR A RESPOSTA
         return PropostaMapper.INSTANCE.convertEntityToDto(proposta);
+    }
 
+
+    public List<PropostaResponseDto> obterProposta() {
+        return PropostaMapper.INSTANCE.convertListEntityToListDto(propostaRepository.findAll());
     }
 }
