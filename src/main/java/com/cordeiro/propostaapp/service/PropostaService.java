@@ -6,28 +6,41 @@ import com.cordeiro.propostaapp.entity.Proposta;
 import com.cordeiro.propostaapp.mapper.PropostaMapper;
 import com.cordeiro.propostaapp.repository.PropostaRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@AllArgsConstructor
+
 @Service
 public class PropostaService {
 
     private  PropostaRepository propostaRepository;
 
+    private NotificacaoService notificacaoService;
 
 
+    private String exchange;
+
+    public PropostaService(PropostaRepository propostaRepository,
+                           NotificacaoService notificacaoService,
+                           @Value("${rabbitmq.propostapendente.exchange}") String exchange) {
+        this.propostaRepository = propostaRepository;
+        this.notificacaoService = notificacaoService;
+        this.exchange = exchange;
+    }
     // public PropostaResponseDto: o que retorna + NOME DO MÉTODO(criar) + O QUE VAI SER PASSADO NO BODY
     // RETORNA O RESPONSE NO COMEÇO E RECEBE O REQUEST NO PARÂMETRO.
 
     public PropostaResponseDto criar(PropostaRequestDto requestDto){
-        // CONVERSÃO DE DTO PARA PROPOSTA
+
         Proposta proposta = PropostaMapper.INSTANCE.convertDtoToProposta(requestDto);
-        // MANDO SALVAR
         propostaRepository.save(proposta);
-        // CONVERSÃO DA PROPOSTA PARA DTO, PARA RETORNAR A RESPOSTA
-        return PropostaMapper.INSTANCE.convertEntityToDto(proposta);
+
+       PropostaResponseDto response = PropostaMapper.INSTANCE.convertEntityToDto(proposta);
+        notificacaoService.notificar(response,exchange);
+
+        return response ;
     }
 
 
