@@ -5,7 +5,6 @@ import com.cordeiro.propostaapp.dto.PropostaResponseDto;
 import com.cordeiro.propostaapp.entity.Proposta;
 import com.cordeiro.propostaapp.mapper.PropostaMapper;
 import com.cordeiro.propostaapp.repository.PropostaRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +16,16 @@ public class PropostaService {
 
     private  PropostaRepository propostaRepository;
 
-    private NotificacaoService notificacaoService;
+    private  NotificacaoRabbitService notificacaoRabbitService;
 
 
-    private String exchange;
+    private  String exchange;
 
     public PropostaService(PropostaRepository propostaRepository,
-                           NotificacaoService notificacaoService,
+                           NotificacaoRabbitService notificacaoRabbitService,
                            @Value("${rabbitmq.propostapendente.exchange}") String exchange) {
         this.propostaRepository = propostaRepository;
-        this.notificacaoService = notificacaoService;
+        this.notificacaoRabbitService = notificacaoRabbitService;
         this.exchange = exchange;
     }
     // public PropostaResponseDto: o que retorna + NOME DO MÉTODO(criar) + O QUE VAI SER PASSADO NO BODY
@@ -37,10 +36,18 @@ public class PropostaService {
         Proposta proposta = PropostaMapper.INSTANCE.convertDtoToProposta(requestDto);
         propostaRepository.save(proposta);
 
-       PropostaResponseDto response = PropostaMapper.INSTANCE.convertEntityToDto(proposta);
-        notificacaoService.notificar(response,exchange);
+        notificarRabbitMQ(proposta);
 
-        return response ;
+        return  PropostaMapper.INSTANCE.convertEntityToDto(proposta);
+    }
+
+    public void notificarRabbitMQ(Proposta proposta){
+        try{
+        notificacaoRabbitService.notificar(proposta,exchange);
+        } catch (RuntimeException ex){ //deve ser usada quando a exceção pode ser prevenida, por ex, RabbitMQ fora do ar.
+            proposta.setIntegrada(false);
+            propostaRepository.save(proposta);
+        }
     }
 
 

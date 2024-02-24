@@ -26,7 +26,7 @@ public interface PropostaMapper {
     @Mapping(target = "usuario.renda", source = "renda")
     @Mapping(target = "id", ignore = true)         // CAMPO APENAS PRESENTE NO RESPONSE, POR ISSO O IGNORE
     @Mapping(target = "aprovada", ignore = true)   // CAMPO APENAS PRESENTE NO RESPONSE, POR ISSO O IGNORE
-    @Mapping(target = "integrada", ignore = true)  // CAMPO APENAS PRESENTE NO RESPONSE, POR ISSO O IGNORE
+    @Mapping(target = "integrada", constant = "true")  // CAMPO APENAS PRESENTE NO RESPONSE, POR ISSO O IGNORE
     @Mapping(target = "observacao", ignore = true) // CAMPO APENAS PRESENTE NO RESPONSE, POR ISSO O IGNORE
     Proposta convertDtoToProposta(PropostaRequestDto propostaRequestDto);
 
